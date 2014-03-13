@@ -78,22 +78,32 @@ int lemon (double p[2], double u) {
   p[1] = sin(u);
 }
 
-int drawNormal(int (*func)(double[2], double), double u]) {
+int drawNormal(int (*func)(double[2], double), double u) {
   //Find the tangent line at a point and then find the perpendicular line
   double newu;
   double xslope;
   double yslope;
-  double normslope[2];
   double p1[2], p2[2];
+  double m;
+  double h;
   newu = u + 0.0001;
   (*func)(p1, u);
   (*func)(p2, newu);
   xslope = p2[0] - p2[1];
-  yslope = 1/(-((p2[1] - p2[1]) / xslope));
-
-
-
-
+  yslope = p2[1] - p2[1];
+  if(yslope == 0) {
+    p2[0] = p1[0];
+    p2[1] = p1[1] + 10;
+  } else if(xslope == 0) {
+    p2[0] = p1[0] + 10;
+    p2[1] = p1[1];
+  } else {
+    m = -1/(yslope/xslope);
+    h = sqrt(1 + pow(m, 2));
+    p2[0] = p1[0] + (1 / h) * 10;
+    p2[1] = p1[1] + (m / h) * 10;
+  }
+  G_line(p1[0], p1[1], p2[0], p2[1];
 }   
 
 void graph(int (*func)(double[2], double), double m[4][4], double minv[4][4],
@@ -105,6 +115,9 @@ void graph(int (*func)(double[2], double), double m[4][4], double minv[4][4],
     	(*func)(p, u);
     	D3d_mat_mult_pt(p, m, p);
     	G_point(p[0], p[1]);
+	if((u - start) % (50*increment) == 0) {
+	  drawNormal(&(*func),u); 
+	}
     }
 }
     
