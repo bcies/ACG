@@ -100,8 +100,8 @@ int drawNormal(int (*func)(double[2], double), double u, double padd[2]) {
   } else {
     m = -1/(yslope/xslope);
     h = sqrt(1 + pow(m, 2));
-    padd[0] = (10 / h);
-    padd[1] = (m * 10 / h);
+    padd[0] = (1);
+    padd[1] = (m);
   }
 }   
 
@@ -119,8 +119,8 @@ void graph(int (*func)(double[2], double), double m[4][4], double minv[4][4],
     	G_point(p[0], p[1]);
 	if(i % 150 == 0) {
 	  drawNormal(&(*func),u, p2);
-	  D3d_mat_mult_pt(p2, m, p2);
-	  G_line(p[0], p[1], p[0] + p2[0], p[1] + p2[1]);
+	  //D3d_mat_mult_pt(p2, m, p2);
+	  G_line(p[0], p[1], p[0] + p2[0], p[1]+ p2[1]);
 	}
 	i++;
     }
