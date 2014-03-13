@@ -78,7 +78,7 @@ int lemon (double p[2], double u) {
   p[1] = sin(u);
 }
 
-int drawNormal(int (*func)(double[2], double), double u) {
+int drawNormal(int (*func)(double[2], double), double u, double padd[2]) {
   //Find the tangent line at a point and then find the perpendicular line
   double newu;
   double xslope;
@@ -89,35 +89,39 @@ int drawNormal(int (*func)(double[2], double), double u) {
   newu = u + 0.0001;
   (*func)(p1, u);
   (*func)(p2, newu);
-  xslope = p2[0] - p2[1];
-  yslope = p2[1] - p2[1];
+  xslope = p2[0] - p1[0];
+  yslope = p2[1] - p1[1];
   if(yslope == 0) {
-    p2[0] = p1[0];
-    p2[1] = p1[1] + 10;
+    padd[0] = p1[0];
+    padd[1] = p1[1] + 10;
   } else if(xslope == 0) {
-    p2[0] = p1[0] + 10;
-    p2[1] = p1[1];
+    padd[0] = p1[0] + 10;
+    padd[1] = p1[1];
   } else {
     m = -1/(yslope/xslope);
     h = sqrt(1 + pow(m, 2));
-    p2[0] = p1[0] + (1 / h) * 10;
-    p2[1] = p1[1] + (m / h) * 10;
+    padd[0] = (10 / h);
+    padd[1] = (m * 10 / h);
   }
-  G_line(p1[0], p1[1], p2[0], p2[1];
 }   
 
 void graph(int (*func)(double[2], double), double m[4][4], double minv[4][4],
 	double start, double end, double increment) {
     double p[2];
+    double p2[2];
     double u;
+    int i;
     printf("Graphing. Start is %lf, end is %lf, increment is %lf.\n", start, end, increment);
+    i = 0;
     for(u = start; u <= end; u+= increment) {
     	(*func)(p, u);
     	D3d_mat_mult_pt(p, m, p);
     	G_point(p[0], p[1]);
-	if((u - start) % (50*increment) == 0) {
-	  drawNormal(&(*func),u); 
+	if(i % 150 == 0) {
+	  drawNormal(&(*func),u, p2);
+	  G_line(p[0], p[1], p[0] + p2[0], p[1] + p2[1]);
 	}
+	i++;
     }
 }
     
