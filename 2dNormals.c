@@ -85,23 +85,64 @@ int drawNormal(int (*func)(double[2], double), double u, double padd[2]) {
   double yslope;
   double p1[2], p2[2];
   double m;
-  double h;
+  double xamt;
   newu = u + 0.0001;
   (*func)(p1, u);
   (*func)(p2, newu);
   xslope = p2[0] - p1[0];
   yslope = p2[1] - p1[1];
-  if(yslope == 0) {
-    padd[0] = p1[0];
-    padd[1] = p1[1] + 10;
-  } else if(xslope == 0) {
-    padd[0] = p1[0] + 10;
-    padd[1] = p1[1];
+  if(u <= M_PI / 2) {
+    if(yslope == 0) {
+      padd[0] = p1[0];
+      padd[1] = p1[1] + 10;
+    } else if(xslope == 0) {
+      padd[0] = p1[0] + 10;
+      padd[1] = p1[1];
+    } else {
+      m = -1/(yslope/xslope);
+      xamt = sqrt(1 / (pow(m, 2) + 1));
+      padd[0] = p1[0] + xamt;
+      padd[1] = p1[1] + m * xamt;
+    }
+  } else if(u <= M_PI) {
+    if(yslope == 0) {
+      padd[0] = p1[0];
+      padd[1] = p1[1] + 10;
+    } else if(xslope == 0) {
+      padd[0] = p1[0] - 10;
+      padd[1] = p1[1];
+    } else {
+      m = -1/(yslope/xslope);
+      xamt = sqrt(1 / (pow(m, 2) + 1));
+      padd[0] = p1[0] - xamt;
+      padd[1] = p1[1] + m * xamt;
+    }
+  } else if(u <= M_PI * 3/2) {
+    if(yslope == 0) {
+      padd[0] = p1[0];
+      padd[1] = p1[1] - 10;
+    } else if(xslope == 0) {
+      padd[0] = p1[0] - 10;
+      padd[1] = p1[1];
+    } else {
+      m = -1/(yslope/xslope);
+      xamt = sqrt(1 / (pow(m, 2) + 1));
+      padd[0] = p1[0] - xamt;
+      padd[1] = p1[1] - m * xamt;
+    }
   } else {
-    m = -1/(yslope/xslope);
-    h = sqrt(1 + pow(m, 2));
-    padd[0] = (1);
-    padd[1] = (m);
+    if(yslope == 0) {
+      padd[0] = p1[0];
+      padd[1] = p1[1] - 10;
+    } else if(xslope == 0) {
+      padd[0] = p1[0] + 10;
+      padd[1] = p1[1];
+    } else {
+      m = -1/(yslope/xslope);
+      xamt = sqrt(1 / (pow(m, 2) + 1));
+      padd[0] = p1[0] + xamt;
+      padd[1] = p1[1] - m * xamt;
+    }
   }
 }   
 
@@ -119,8 +160,8 @@ void graph(int (*func)(double[2], double), double m[4][4], double minv[4][4],
     	G_point(p[0], p[1]);
 	if(i % 150 == 0) {
 	  drawNormal(&(*func),u, p2);
-	  //D3d_mat_mult_pt(p2, m, p2);
-	  G_line(p[0], p[1], p[0] + p2[0], p[1]+ p2[1]);
+	  D3d_mat_mult_pt(p2, m, p2);
+	  G_line(p[0], p[1], p2[0], p2[1]);
 	}
 	i++;
     }
