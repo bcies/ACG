@@ -6,6 +6,13 @@ double degrees_of_half_angle;
 double AMBIENT      = 0.2 ;
 double MAX_DIFFUSE  = 0.5 ;
 double SPECPOW      = 80 ;
+double z_buffer[600][600];
+
+int sphere(double p[3], double u, double v) {
+  p[0] = cos(v)*cos(u);
+  p[1] = sin(u);
+  p[2] = sin(v)*cos(u);
+}
 
 void path (int frame_number, double path_xyz[3])
 {
@@ -107,6 +114,41 @@ void nu_light_model (double irgb[3],
   }
 }
 
+void crossProduct(double v1[3], double v2[3], double returnvec[3]) {
+  double result[3];
+  int i;
+  result[0] = v1[1] * v2[2] - v1[2] * v2[1];
+  result[1] = v1[2] * v2[0] - v1[0] * v2[2];
+  result[2] = v1[0] * v2[1] - v1[1] * v2[0];
+  for(i = 0; i < 3; i++) {
+    returnvec[i] = result[i];
+  }
+}
+
+void findUnitVector(double vec[3], double returnvec[3]) {
+  int i;
+  double divider;
+  divider = sqrt(pow(vec[0],2)+pow(vec[1],2)+pow(vec[2],2));
+  for(i = 0; i < 3; i++) {
+    returnvec[i] = vec[i]/divider;
+  }
+}
+
+int findNormal(double p[3], double pu[3], double pv[3], double rvec[3]) {
+  double vec1[3];
+  double vec2[3];
+  double nvec[3];
+  vec1[0] = pv[0] - p[0];
+  vec1[1] = pv[1] - p[1];
+  vec1[2] = pv[2] - p[2];
+  vec2[0] = pu[0] - p[0];
+  vec2[1] = pu[1] - p[1];
+  vec2[2] = pu[2] - p[2];
+  crossProduct(vec1, vec2, nvec);
+  findUnitVector(nvec, nvec);
+  rvec[0] = nvec[0]; rvec[1] = nvec[1]; rvec[2] = nvec[2];
+}
+
 void draw(int (*func)(double[3], double, double), double Mat[15][4][4], 
 	  double Imat[15][4][4], double rgb[15][3], int numobjects, 
 	  double eye[3]) {
@@ -124,8 +166,10 @@ void draw(int (*func)(double[3], double, double), double Mat[15][4][4],
 	(*func)(pu, u+0.001, v);
 	(*func)(pv, u, v+0.001);
 	D3d_mat_mult_pt(p, Mat[i], p);
+	printf("%lf, %lf, %lf\n", p[0], p[1], p[2]);
 	xproj = (300.0 / h) * (p[0] / p[2]) + 300;
 	yproj = (300.0 / h) * (p[1] / p[2]) + 300;
+	printf("xproj: %lf, yproj: %lf\n", xproj, yproj);
 	xtemp = (int)xproj;
 	ytemp = (int)yproj;
 	if(xtemp < 600 && ytemp < 600 && xtemp >= 0 && ytemp >= 0) {
@@ -136,7 +180,9 @@ void draw(int (*func)(double[3], double, double), double Mat[15][4][4],
 	    findNormal(p, pu, pv, normvec);
 	    nu_light_model(rgb[i], eye, p, normvec, argb);
 	    G_rgb(argb[0], argb[1], argb[2]);
+	    printf("xtemp: %d, ytemp: %d\n",xtemp, ytemp);
 	    G_point(xtemp, ytemp);
+printf("Hello\n");
 	  }
 	}
       }
@@ -145,7 +191,7 @@ void draw(int (*func)(double[3], double, double), double Mat[15][4][4],
 }
 
 int init_scene (int frame_number, double eye[3], double coi[3], double up[3],
-		double Mat[15][3][3], double Imat[15][3][3])
+		double Mat[15][4][4], double Imat[15][4][4])
 {
   // model variables
   double xcen[4],ycen[4],zcen[4],brad ; // four nodes of tetrahedron
@@ -154,6 +200,7 @@ int init_scene (int frame_number, double eye[3], double coi[3], double up[3],
   int Tn;
   int Ttypelist[100];
   double Tvlist[100];
+  double light_position[3];
 
 
   //////////////////////////////////////////////
@@ -163,7 +210,9 @@ int init_scene (int frame_number, double eye[3], double coi[3], double up[3],
   //////////////////////////////////////////////
   // 3 equally spaced pts around unit circle in the xz-plane 
   // form the base
-  
+  int k;
+  double theta;
+
   for (k = 0 ; k < 3 ; k++) {
     theta = 2*M_PI*k/3 ;
     xcen[k] = cos(theta) ;
@@ -218,9 +267,9 @@ int init_scene (int frame_number, double eye[3], double coi[3], double up[3],
   Ttypelist[Tn] = TX; Tvlist[Tn] = xcen[0]; Tn++;
   Ttypelist[Tn] = TY; Tvlist[Tn] = ycen[0]; Tn++;
   Ttypelist[Tn] = TZ; Tvlist[Tn] = zcen[0]; Tn++;
-  Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+  Ttypelist[Tn] = SX; Tvlist[Tn] = 50*brad; Tn++;
+  Ttypelist[Tn] = SY; Tvlist[Tn] = 50*brad; Tn++;
+  Ttypelist[Tn] = SZ; Tvlist[Tn] = 50*brad; Tn++;
 
   D3d_make_movement_sequence_matrix(Mat[0], Imat[0], Tn, Ttypelist, Tvlist);
 
@@ -228,9 +277,9 @@ int init_scene (int frame_number, double eye[3], double coi[3], double up[3],
   Ttypelist[Tn] = TX; Tvlist[Tn] = xcen[1]; Tn++;
   Ttypelist[Tn] = TY; Tvlist[Tn] = ycen[1]; Tn++;
   Ttypelist[Tn] = TZ; Tvlist[Tn] = zcen[1]; Tn++;
-  Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+  Ttypelist[Tn] = SX; Tvlist[Tn] = 50*brad; Tn++;
+  Ttypelist[Tn] = SY; Tvlist[Tn] = 50*brad; Tn++;
+  Ttypelist[Tn] = SZ; Tvlist[Tn] = 50*brad; Tn++;
 
   D3d_make_movement_sequence_matrix(Mat[1], Imat[1], Tn, Ttypelist, Tvlist);
 
@@ -238,19 +287,19 @@ int init_scene (int frame_number, double eye[3], double coi[3], double up[3],
   Ttypelist[Tn] = TX; Tvlist[Tn] = xcen[2]; Tn++;
   Ttypelist[Tn] = TY; Tvlist[Tn] = ycen[2]; Tn++;
   Ttypelist[Tn] = TZ; Tvlist[Tn] = zcen[2]; Tn++;
-  Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+  Ttypelist[Tn] = SX; Tvlist[Tn] = 50*brad; Tn++;
+  Ttypelist[Tn] = SY; Tvlist[Tn] = 50*brad; Tn++;
+  Ttypelist[Tn] = SZ; Tvlist[Tn] = 50*brad; Tn++;
 
   D3d_make_movement_sequence_matrix(Mat[2], Imat[2], Tn, Ttypelist, Tvlist);
 
   Tn = 0;
-  Ttypelist[Tn] = TX; Tvlist[Tn] = ccx; Tn++;
-  Ttypelist[Tn] = TY; Tvlist[Tn] = ccy; Tn++;
-  Ttypelist[Tn] = TZ; Tvlist[Tn] = ccz; Tn++;
-  Ttypelist[Tn] = SX; Tvlist[Tn] = ccr; Tn++;
-  Ttypelist[Tn] = SY; Tvlist[Tn] = ccr; Tn++;
-  Ttypelist[Tn] = SZ; Tvlist[Tn] = ccr; Tn++;
+  Ttypelist[Tn] = TX; Tvlist[Tn] = 50*ccx; Tn++;
+  Ttypelist[Tn] = TY; Tvlist[Tn] = 50*ccy; Tn++;
+  Ttypelist[Tn] = TZ; Tvlist[Tn] = 50*ccz; Tn++;
+  Ttypelist[Tn] = SX; Tvlist[Tn] = 50*ccr; Tn++;
+  Ttypelist[Tn] = SY; Tvlist[Tn] = 50*ccr; Tn++;
+  Ttypelist[Tn] = SZ; Tvlist[Tn] = 50*ccr; Tn++;
 
   D3d_make_movement_sequence_matrix(Mat[3], Imat[3], Tn, Ttypelist, Tvlist);
 
@@ -260,23 +309,22 @@ int main() {
   double Mat[15][4][4], Imat[15][4][4];
   int numobjects;
   double eye[3], coi[3], up[3];
-
   double rgb[15][3]; 
-
   int frame_number;
   frame_number = 0;
-
   light_in_eye_space[0] = 100;
   light_in_eye_space[1] = 200;
   light_in_eye_space[2] = -50;
-
   init_scene(frame_number, eye, coi, up, Mat, Imat);
-
   numobjects = 5;
-  int i;
+  int i, j;
   for(i = 0; i < numobjects; i++) {
     rgb[i][0] = 0; rgb[i][1] = 0; rgb[i][2] = 1;
   }
-
-  draw(&sphere, Mat, Imat, rgb, numobjects, eye;
+  for(i = 0; i < 600; i++) {
+    for(j = 0; j < 600; j++) {
+      z_buffer[i][j] = 1000;
+    }
+  }
+  draw(&sphere, Mat, Imat, rgb, numobjects, eye);
 }
