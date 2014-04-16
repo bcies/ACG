@@ -18,6 +18,12 @@ int sphere(double p[3], double u, double v) {
   p[2] = sin(v)*cos(u);
 }
 
+int hyperboloid(double p[3], double u, double v) {
+  p[0] = sqrt(1+pow(u,2))*cos(v);
+  p[1] = sqrt(1+pow(u,2))*sin(v);
+  p[2] = .25*u;
+}
+
 void path (int frame_number, double path_xyz[3]) {
   double u,v,r ;
   double x,y,z ;
@@ -33,16 +39,10 @@ void path (int frame_number, double path_xyz[3]) {
 }
 
 int init_start() {
-
-}
-
-int init_scene (int frame_number) {
   // model variables
   double xcen[4],ycen[4],zcen[4],brad ; // four nodes of tetrahedron
   double ccx,ccy,ccz,ccr ; // location of center of center sphere and radius
-  
-  double eye[3],coi[3],up[3] ;
-  double light_position[3], amb, diff, spow ;
+
   int k;
   double theta;
   //////////////////////////////////////////////
@@ -71,22 +71,8 @@ int init_scene (int frame_number) {
   ////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////
   degrees_of_half_angle = 45 ;
-  
-  path (frame_number, eye) ;
-  
-  coi[0] = ccx ;
-  coi[1] = ccy ;
-  coi[2] = ccz ;
-  
-  path (frame_number + 1, up) ;
-  
-  printf("eye = %lf %lf %lf\n",eye[0],eye[1],eye[2]) ;
-  printf("coi = %lf %lf %lf\n",coi[0],coi[1],coi[2]) ;
-  printf("up  = %lf %lf %lf\n",up[0],up[1],up[2]) ;
-  //////////////////////////////////////////////
-  //////////////////////////////////////////////
-  path (frame_number + 10, light_position) ;
-  AMBIENT  = 0.2 ;
+
+ AMBIENT  = 0.2 ;
   MAX_DIFFUSE = 0.5 ;
   SPECPOW = 80 ;
   //////////////////////////////////////////////
@@ -167,6 +153,30 @@ int init_scene (int frame_number) {
 				    Tn, Ttypelist, Tvlist);
   rgb[numobjects][0] = 1; rgb[numobjects][1] = 0; rgb[numobjects][2] = 0;
   numobjects++;
+}
+
+int init_scene (int frame_number) {
+  int k;
+  double ccx, ccy, ccz;
+  double eye[3],coi[3],up[3] ;
+  double light_position[3], amb, diff, spow ;
+  ccx = 0 ; ccy = sqrt(2) / 4 ; ccz = 0 ;
+  
+  path (frame_number, eye) ;
+  
+  coi[0] = ccx ;
+  coi[1] = ccy ;
+  coi[2] = ccz ;
+  
+  path (frame_number + 1, up) ;
+  
+  printf("eye = %lf %lf %lf\n",eye[0],eye[1],eye[2]) ;
+  printf("coi = %lf %lf %lf\n",coi[0],coi[1],coi[2]) ;
+  printf("up  = %lf %lf %lf\n",up[0],up[1],up[2]) ;
+  //////////////////////////////////////////////
+  //////////////////////////////////////////////
+  path (frame_number + 10, light_position) ;
+ 
   ///////////////////////////////////////////
   //TRANSLATE EYE TO ORIGIN AND ADJUST ALL OBJECTS 
   //AND LIGHT/REFERENCE PTS
@@ -336,6 +346,8 @@ void draw(int (*func)(double[3], double, double), double matrix[15][4][4],
 int main() {
   int frame_number;
   int i, j;
+
+  init_start();
 
   G_init_graphics(600,600);
 
