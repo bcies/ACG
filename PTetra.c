@@ -40,8 +40,9 @@ void path (int frame_number, double path_xyz[3]) {
 
 int init_start() {
   // model variables
-  double xcen[4],ycen[4],zcen[4],brad ; // four nodes of tetrahedron
-  double ccx,ccy,ccz,ccr ; // location of center of center sphere and radius
+  double xcen[4], ycen[4], zcen[4], brad ; // four nodes of tetrahedron
+  double hxcen[9], hycen[9], hzcen[9];
+  double ccx, ccy, ccz, ccr ; // location of center of center sphere and radius
 
   int k;
   double theta;
@@ -66,6 +67,17 @@ int init_start() {
   // which is at the center of mass of the tetrahedron
   ccx = 0 ; ccy = ycen[3] / 4 ; ccz = 0 ;
   
+  //Finding the centers of all hyperboloids
+
+  for(k = 0; k < 3; k++) {
+    hxcen[k] = ((xcen[(k + 1)%3] - xcen[k])/2) + xcen[k];
+    hycen[k] = 0;
+    hzcen[k] = ((zcen[(k + 1)%3] - zcen[k])/2) + zcen[k];
+    hxcen[k+3] = ((xcen[3]-xcen[k])/2) + xcen[k];
+    hycen[k+3] = ((ycen[3]-ycen[k])/2) + ycen[k];
+    hzcen[k+3] = ((zcen[3]-zcen[k])/2) + zcen[k];
+  }
+
   brad = 0.08 ; // radius of the 4 verts of the tetrahedron
   ccr  = 0.20 ; // the radius of the center node of the model
   ////////////////////////////////////////////////////////////////
