@@ -41,7 +41,7 @@ void path (int frame_number, double path_xyz[3]) {
 int init_start() {
   // model variables
   double xcen[4], ycen[4], zcen[4], brad ; // four nodes of tetrahedron
-  double hxcen[9], hycen[9], hzcen[9];
+  double hxcen[10], hycen[10], hzcen[10];
   double ccx, ccy, ccz, ccr ; // location of center of center sphere and radius
 
   int k;
@@ -77,6 +77,12 @@ int init_start() {
     hycen[k+3] = ((ycen[3]-ycen[k])/2) + ycen[k];
     hzcen[k+3] = ((zcen[3]-zcen[k])/2) + zcen[k];
   }
+  //Middle, connecting Hyperboloids
+  for(k = 6; k < 10; k++) {
+    hxcen[k] = ((ccx - xcen[k - 6])/2) + xcen[k - 6];
+    hycen[k] = ((ccy - ycen[k - 6])/2) + ycen[k - 6];
+    hzcen[k] = ((ccz - zcen[k - 6])/2) + zcen[k - 6];
+  }
 
   brad = 0.08 ; // radius of the 4 verts of the tetrahedron
   ccr  = 0.20 ; // the radius of the center node of the model
@@ -96,61 +102,21 @@ int init_start() {
   
   numobjects = 0;
   
-  Tn = 0;
-  Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = TX; Tvlist[Tn] = xcen[0]; Tn++;
-  Ttypelist[Tn] = TY; Tvlist[Tn] = ycen[0]; Tn++;
-  Ttypelist[Tn] = TZ; Tvlist[Tn] = zcen[0]; Tn++;
-  
-  D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects], 
-				    Tn, Ttypelist, Tvlist);
-  //Make the spheres blue
-  rgb[numobjects][0] = 0; rgb[numobjects][1] = 0; rgb[numobjects][2] = 1;
-  numobjects++;
-  
-  Tn = 0;
-  Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = TX; Tvlist[Tn] = xcen[1]; Tn++;
-  Ttypelist[Tn] = TY; Tvlist[Tn] = ycen[1]; Tn++;
-  Ttypelist[Tn] = TZ; Tvlist[Tn] = zcen[1]; Tn++;
-  
-  D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects], 
-				    Tn, Ttypelist, Tvlist);
-  //Make the spheres blue
-  rgb[numobjects][0] = 0; rgb[numobjects][1] = 0; rgb[numobjects][2] = 1;
-  numobjects++;
-
-  Tn = 0;
-  Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = TX; Tvlist[Tn] = xcen[2]; Tn++;
-  Ttypelist[Tn] = TY; Tvlist[Tn] = ycen[2]; Tn++;
-  Ttypelist[Tn] = TZ; Tvlist[Tn] = zcen[2]; Tn++;
-  
-  D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects], 
-				    Tn, Ttypelist, Tvlist);
-  //Make the spheres blue
-  rgb[numobjects][0] = 0; rgb[numobjects][1] = 0; rgb[numobjects][2] = 1;
-  numobjects++;
-  
-  Tn = 0;
-  Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
-  Ttypelist[Tn] = TX; Tvlist[Tn] = xcen[3]; Tn++;
-  Ttypelist[Tn] = TY; Tvlist[Tn] = ycen[3]; Tn++;
-  Ttypelist[Tn] = TZ; Tvlist[Tn] = zcen[3]; Tn++;
-  
-  D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects], 
-				    Tn, Ttypelist, Tvlist);
-  //Make the spheres blue
-  rgb[numobjects][0] = 0; rgb[numobjects][1] = 0; rgb[numobjects][2] = 1;
-  numobjects++;
+  for(k = 0; k < 4; k++) {
+    Tn = 0;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = TX; Tvlist[Tn] = xcen[k]; Tn++;
+    Ttypelist[Tn] = TY; Tvlist[Tn] = ycen[k]; Tn++;
+    Ttypelist[Tn] = TZ; Tvlist[Tn] = zcen[k]; Tn++;
+    
+    D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects], 
+				      Tn, Ttypelist, Tvlist);
+    //Make the spheres blue
+    rgb[numobjects][0] = 0; rgb[numobjects][1] = 0; rgb[numobjects][2] = 1;
+    numobjects++;
+  }
 
   //Center Sphere
   Tn = 0;
@@ -165,6 +131,74 @@ int init_start() {
 				    Tn, Ttypelist, Tvlist);
   rgb[numobjects][0] = 1; rgb[numobjects][1] = 0; rgb[numobjects][2] = 0;
   numobjects++;
+
+  //Hyperboloids
+  for(k = 0; k < 3; k++) {
+    Tn = 0;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = RY; 
+    Tvlist[Tn] = cos((xcen[(k + 1)%3] - xcen[k])/
+		     sqrt(pow(xcen[(k+1)%3] - xcen[k], 2) + 
+			  pow(zcen[(k+1)%3] - zcen[k], 2))); Tn++;
+    Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k]; Tn++;
+    Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k]; Tn++;
+    Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k]; Tn++;
+    
+    D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects],
+				      Tn, Ttypelist, Tvlist);
+    rgb[numobjects][0] = 0.95; rgb[numobjects][1] = 0.95; 
+    rgb[numobjects][2] = 0.95;
+    numobjects++;
+  }
+  for(k = 0; k < 3; k++) {
+    Tn = 0;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = RZ;
+    Tvlist[Tn] = cos((xcen[3] - xcen[k])/
+		     sqrt(pow(xcen[3] - xcen[k], 2) + 
+			  pow(ycen[3] - ycen[k], 2))); Tn++;
+    Ttypelist[Tn] = RY; 
+    Tvlist[Tn] = cos((xcen[3] - xcen[k])/
+		     sqrt(pow(xcen[3] - xcen[k], 2) + 
+			  pow(zcen[3] - zcen[k], 2))); Tn++;
+    Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k]; Tn++;
+    Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k]; Tn++;
+    Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k]; Tn++;
+    
+    D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects],
+				      Tn, Ttypelist, Tvlist);
+    rgb[numobjects][0] = 0.95; rgb[numobjects][1] = 0.95; 
+    rgb[numobjects][2] = 0.95;
+    numobjects++;
+  }
+  //Inner hyperboloids
+  for(k = 0; k < 4; k++) {
+    Tn = 0;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+    Tvlist[Tn] = cos((ccx - xcen[k])/
+		     sqrt(pow(ccx - xcen[k], 2) + 
+			  pow(ccy - ycen[k], 2))); Tn++;
+    Ttypelist[Tn] = RY; 
+    Tvlist[Tn] = cos((ccx - xcen[k])/
+		     sqrt(pow(ccx - xcen[k], 2) + 
+			  pow(ccz - zcen[k], 2))); Tn++;
+    Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k + 6]; Tn++;
+    Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k + 6]; Tn++;
+    Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k + 6]; Tn++;
+    
+    D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects],
+				      Tn, Ttypelist, Tvlist);
+    rgb[numobjects][0] = 0.95; rgb[numobjects][1] = 0.95; 
+    rgb[numobjects][2] = 0.95;
+    numobjects++;
+  }
+
 }
 
 int init_scene (int frame_number) {
@@ -313,7 +347,7 @@ int findNormal(double p[3], double pu[3], double pv[3], double rvec[3]) {
   rvec[0] = nvec[0]; rvec[1] = nvec[1]; rvec[2] = nvec[2];
 }
 
-void draw(int (*func)(double[3], double, double), double matrix[15][4][4], 
+void draw(double matrix[15][4][4], 
 	  double I_matrix[15][4][4], double rgbval[15][3], int numobjects) {
   double p[3], pu[3], pv[3], normvec[3];
   double u, v, h;
@@ -327,9 +361,15 @@ void draw(int (*func)(double[3], double, double), double matrix[15][4][4],
   for(i = 0; i < numobjects; i++) {
     for(u = 0; u < M_PI*2; u += 0.005) {
       for(v = 0; v < M_PI*2; v += 0.005) {
-	(*func)(p, u, v);
-	(*func)(pu, u+0.001, v);
-	(*func)(pv, u, v+0.001);
+	if(i < 5) {
+	  sphere(p, u, v);
+	  sphere(pu, u+0.001, v);
+	  sphere(pv, u, v+0.001);
+	} else {
+	  hyperboloid(p, u, v);
+	  hyperboloid(pu, u+0.001, v);
+	  hyperboloid(pv, u, v+0.001);
+	}
 	
 	D3d_mat_mult_pt(p, matrix[i], p);
 	//printf("px: %lf py:%lf pz:%lf\n", p[0], p[1], p[2]);
@@ -376,7 +416,7 @@ int main() {
     G_rgb(0,0,0);
     G_clear();
     
-    draw(&sphere, Drawmat, Idrawmat, rgb, numobjects);
+    draw(Drawmat, Idrawmat, rgb, numobjects);
     
     G_wait_key();
   }
