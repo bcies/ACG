@@ -19,8 +19,11 @@ int sphere(double p[3], double u, double v) {
 }
 
 int hyperboloid(double p[3], double u, double v) {
-  p[0] = sqrt(1+pow(u,2))*cos(v);
-  p[1] = sqrt(1+pow(u,2))*sin(v);
+  //p[0] = 0.25*cosh(u)*cos(v);
+  //p[1] = 0.25*cosh(u)*sin(v);
+  //p[2] = 0.25*sinh(u);
+  p[0] = .25*sqrt(1+pow(u,2))*cos(v);
+  p[1] = .25*sqrt(1+pow(u,2))*sin(v);
   p[2] = .25*u;
 }
 
@@ -165,9 +168,9 @@ int init_start() {
     Tvlist[Tn] = cos((xcen[3] - xcen[k])/
 		     sqrt(pow(xcen[3] - xcen[k], 2) + 
 			  pow(zcen[3] - zcen[k], 2))); Tn++;
-    Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k]; Tn++;
-    Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k]; Tn++;
-    Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k]; Tn++;
+    Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k+3]; Tn++;
+    Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k+3]; Tn++;
+    Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k+3]; Tn++;
     
     D3d_make_movement_sequence_matrix(Mat[numobjects], Imat[numobjects],
 				      Tn, Ttypelist, Tvlist);
@@ -181,6 +184,7 @@ int init_start() {
     Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
     Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
     Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = RZ;
     Tvlist[Tn] = cos((ccx - xcen[k])/
 		     sqrt(pow(ccx - xcen[k], 2) + 
 			  pow(ccy - ycen[k], 2))); Tn++;
