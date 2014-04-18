@@ -22,9 +22,25 @@ int hyperboloid(double p[3], double u, double v) {
   //p[0] = 0.25*cosh(u)*cos(v);
   //p[1] = 0.25*cosh(u)*sin(v);
   //p[2] = 0.25*sinh(u);
-  p[0] = .25*sqrt(1+pow(u,2))*cos(v);
-  p[1] = .25*sqrt(1+pow(u,2))*sin(v);
-  p[2] = .25*u;
+  //p[0] = .25*sqrt(1+pow(u,2))*cos(v);
+  //p[1] = .25*sqrt(1+pow(u,2))*sin(v);
+  //p[2] = .25*u;
+
+  double r = .25;
+  double H = 1;
+  double R = 1;
+
+  double b = sqrt(r*r*H*H / (R*R - r*r));
+
+  double y = u;
+  double d = r/b*sqrt(y*y + b*b);
+
+  double X = d* cos(v);
+  double Z = d * sin(v);
+
+  p[0] = X;
+  p[1] = y;
+  p[2] = Z;
 }
 
 void path (int frame_number, double path_xyz[3]) {
@@ -93,7 +109,7 @@ int init_start() {
   ////////////////////////////////////////////////////////////////
   degrees_of_half_angle = 45 ;
 
- AMBIENT  = 0.2 ;
+  AMBIENT  = 0.2 ;
   MAX_DIFFUSE = 0.5 ;
   SPECPOW = 80 ;
   //////////////////////////////////////////////
@@ -134,17 +150,19 @@ int init_start() {
 				    Tn, Ttypelist, Tvlist);
   rgb[numobjects][0] = 1; rgb[numobjects][1] = 0; rgb[numobjects][2] = 0;
   numobjects++;
-
+  int m;
   //Hyperboloids
   for(k = 0; k < 3; k++) {
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-    Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*0.55; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad*10; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*0.55; Tn++;
+    Ttypelist[Tn] = RZ; Tvlist[Tn] = 90; Tn++;
     Ttypelist[Tn] = RY; 
-    Tvlist[Tn] = cos((xcen[(k + 1)%3] - xcen[k])/
-		     sqrt(pow(xcen[(k+1)%3] - xcen[k], 2) + 
-			  pow(zcen[(k+1)%3] - zcen[k], 2))); Tn++;
+    if(k == 0) { Tvlist[Tn] = 30; }
+    else if(k == 1) { Tvlist[Tn] = 90; }
+    else { Tvlist[Tn] = -30; }
+    Tn++;
     Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k]; Tn++;
     Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k]; Tn++;
     Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k]; Tn++;
@@ -157,17 +175,18 @@ int init_start() {
   }
   for(k = 0; k < 3; k++) {
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-    Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
-    Ttypelist[Tn] = RZ;
-    Tvlist[Tn] = cos((xcen[3] - xcen[k])/
-		     sqrt(pow(xcen[3] - xcen[k], 2) + 
-			  pow(ycen[3] - ycen[k], 2))); Tn++;
-    Ttypelist[Tn] = RY; 
-    Tvlist[Tn] = cos((xcen[3] - xcen[k])/
-		     sqrt(pow(xcen[3] - xcen[k], 2) + 
-			  pow(zcen[3] - zcen[k], 2))); Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*0.55; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad*10; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*0.55; Tn++;
+    Ttypelist[Tn] = RX;
+    Tvlist[Tn] = -atan2(ycen[3], 1) * 180/M_PI + 20;
+    printf("%lf\n", Tvlist[Tn]);
+    Tn++;
+    Ttypelist[Tn] = RY;
+    if(k == 0) { Tvlist[Tn] = 90; }
+    else if(k == 1) { Tvlist[Tn] = -30; }
+    else { Tvlist[Tn] = 210; }
+    Tn++;
     Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k+3]; Tn++;
     Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k+3]; Tn++;
     Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k+3]; Tn++;
@@ -181,17 +200,9 @@ int init_start() {
   //Inner hyperboloids
   for(k = 0; k < 4; k++) {
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad; Tn++;
-    Ttypelist[Tn] = SY; Tvlist[Tn] = brad; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad; Tn++;
-    Ttypelist[Tn] = RZ;
-    Tvlist[Tn] = cos((ccx - xcen[k])/
-		     sqrt(pow(ccx - xcen[k], 2) + 
-			  pow(ccy - ycen[k], 2))); Tn++;
-    Ttypelist[Tn] = RY; 
-    Tvlist[Tn] = cos((ccx - xcen[k])/
-		     sqrt(pow(ccx - xcen[k], 2) + 
-			  pow(ccz - zcen[k], 2))); Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.5; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = .5; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*.5; Tn++;
     Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k + 6]; Tn++;
     Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k + 6]; Tn++;
     Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k + 6]; Tn++;
@@ -360,10 +371,19 @@ void draw(double matrix[15][4][4],
   double argb[3];
   int i;
   double eye[3];
+  double start;
+  double limit;
   eye[0] = 0; eye[1] = 0; eye[2] = 0;
   h = tan(degrees_of_half_angle * M_PI / 180);
   for(i = 0; i < numobjects; i++) {
-    for(u = 0; u < M_PI*2; u += 0.005) {
+    if(i < 5) {
+      start = -M_PI / 2;
+      limit = M_PI / 2;
+    } else {
+      start = -1;
+      limit = 1;
+    }
+    for(u = start; u < limit; u += 0.005) {
       for(v = 0; v < M_PI*2; v += 0.005) {
 	if(i < 5) {
 	  sphere(p, u, v);
