@@ -107,7 +107,7 @@ int init_start() {
   ccr  = 0.20 ; // the radius of the center node of the model
   ////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////
-  degrees_of_half_angle = 45 ;
+  degrees_of_half_angle = 25 ;
 
   AMBIENT  = 0.2 ;
   MAX_DIFFUSE = 0.5 ;
@@ -154,9 +154,9 @@ int init_start() {
   //Hyperboloids
   for(k = 0; k < 3; k++) {
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*0.55; Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*0.45; Tn++;
     Ttypelist[Tn] = SY; Tvlist[Tn] = brad*10; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*0.55; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*0.45; Tn++;
     Ttypelist[Tn] = RZ; Tvlist[Tn] = 90; Tn++;
     Ttypelist[Tn] = RY; 
     if(k == 0) { Tvlist[Tn] = 30; }
@@ -175,12 +175,12 @@ int init_start() {
   }
   for(k = 0; k < 3; k++) {
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*0.55; Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*0.45; Tn++;
     Ttypelist[Tn] = SY; Tvlist[Tn] = brad*10; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*0.55; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*0.45; Tn++;
     Ttypelist[Tn] = RX;
     Tvlist[Tn] = -atan2(ycen[3], 1) * 180/M_PI + 20;
-    printf("%lf\n", Tvlist[Tn]);
+    //printf("%lf\n", Tvlist[Tn]);
     Tn++;
     Ttypelist[Tn] = RY;
     if(k == 0) { Tvlist[Tn] = 90; }
@@ -200,9 +200,18 @@ int init_start() {
   //Inner hyperboloids
   for(k = 0; k < 4; k++) {
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.5; Tn++;
-    Ttypelist[Tn] = SY; Tvlist[Tn] = .5; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*.5; Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.43; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad * 6; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*.43; Tn++;
+    if(k != 3) {
+      Ttypelist[Tn] = RX; Tvlist[Tn] = -70; 
+      Tn++;
+      Ttypelist[Tn] = RY;
+      if(k == 0) { Tvlist[Tn] = 90; }
+      else if (k == 1) { Tvlist[Tn] = -30; }
+      else { Tvlist[Tn] = 210; }
+      Tn++;
+    }
     Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k + 6]; Tn++;
     Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k + 6]; Tn++;
     Ttypelist[Tn] = TZ; Tvlist[Tn] = hzcen[k + 6]; Tn++;
@@ -373,18 +382,21 @@ void draw(double matrix[15][4][4],
   double eye[3];
   double start;
   double limit;
+  double increment;
   eye[0] = 0; eye[1] = 0; eye[2] = 0;
   h = tan(degrees_of_half_angle * M_PI / 180);
   for(i = 0; i < numobjects; i++) {
     if(i < 5) {
       start = -M_PI / 2;
       limit = M_PI / 2;
+      increment = 0.005;
     } else {
       start = -1;
       limit = 1;
+      increment = 0.0025;
     }
-    for(u = start; u < limit; u += 0.005) {
-      for(v = 0; v < M_PI*2; v += 0.005) {
+    for(u = start; u < limit; u += increment) {
+      for(v = 0; v < M_PI*2; v += increment) {
 	if(i < 5) {
 	  sphere(p, u, v);
 	  sphere(pu, u+0.001, v);
