@@ -11,10 +11,6 @@ double AMBIENT;
 double MAX_DIFFUSE;
 double SPECPOW;
 
-//int sphereEquation(double rayStart[3], double t[3]) {
-
-//}
-
 void nu_light_model (double irgb[3],
                      double s[3],
                      double p[3],
