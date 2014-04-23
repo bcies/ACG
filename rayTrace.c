@@ -100,18 +100,22 @@ int init_scene() {
   AMBIENT = 0.2;
   MAX_DIFFUSE = 0.5;
   SPECPOW = 80;
+  light_in_eye_space[0] = 100;
+  light_in_eye_space[1] = 200;
+  light_in_eye_space[2] = -50;
 
   eye[0] = 0; eye[1] = 0; eye[2] = 0;
 
-  degrees_of_half_angle = 45;
+  //degrees_of_half_angle = 45;
 
   // Object Type Indicators:
   // 0 = Sphere
   // 1 = Hyperboloid
 
   numobjects = 0;
+  
+  //Build the four pancakes
   objectType[numobjects] = 0;
-
   Tn = 0 ; 
   Ttypelist[Tn] = SX ; Tvlist[Tn] =  100    ; Tn++ ;
   Ttypelist[Tn] = SY ; Tvlist[Tn] =   10    ; Tn++ ;
@@ -123,6 +127,50 @@ int init_scene() {
 				     Tn, Ttypelist, Tvlist) ;
   rgb[numobjects][0] = 0; rgb[numobjects][1] = 0; rgb[numobjects][2] = 1;
 
+  numobjects++;
+
+  objectType[numobjects] = 0;
+  Tn = 0 ; 
+  Ttypelist[Tn] = SX ; Tvlist[Tn] =   10    ; Tn++ ;
+  Ttypelist[Tn] = SY ; Tvlist[Tn] =  100    ; Tn++ ;
+  Ttypelist[Tn] = SZ ; Tvlist[Tn] =  100    ; Tn++ ;
+  Ttypelist[Tn] = RX ; Tvlist[Tn] =  -70    ; Tn++ ;
+  Ttypelist[Tn] = TZ ; Tvlist[Tn] =  400    ; Tn++ ;
+  
+  D3d_make_movement_sequence_matrix (M[numobjects], invM[numobjects],
+				     Tn, Ttypelist, Tvlist) ;
+  rgb[numobjects][0] = 0; rgb[numobjects][1] = 1; rgb[numobjects][2] = .25;
+  
+  numobjects++;
+  
+  objectType[numobjects] = 0;
+  Tn = 0 ; // number of transformations
+  Ttypelist[Tn] = SX ; Tvlist[Tn] =   10    ; Tn++ ;
+  Ttypelist[Tn] = SY ; Tvlist[Tn] =  100    ; Tn++ ;
+  Ttypelist[Tn] = SZ ; Tvlist[Tn] =  100    ; Tn++ ;
+  Ttypelist[Tn] = RY ; Tvlist[Tn] =   60    ; Tn++ ;
+  Ttypelist[Tn] = RX ; Tvlist[Tn] =  -70    ; Tn++ ;
+  Ttypelist[Tn] = TZ ; Tvlist[Tn] =  400    ; Tn++ ;
+  
+  D3d_make_movement_sequence_matrix (M[numobjects], invM[numobjects],
+				     Tn, Ttypelist, Tvlist) ;
+  rgb[numobjects][0] = 1; rgb[numobjects][1] = 1; rgb[numobjects][2] = 1;
+  
+  numobjects++;
+  
+  objectType[numobjects] = 0;
+  Tn = 0 ; // number of transformations
+  Ttypelist[Tn] = SX ; Tvlist[Tn] =   10    ; Tn++ ;
+  Ttypelist[Tn] = SY ; Tvlist[Tn] =  100    ; Tn++ ;
+  Ttypelist[Tn] = SZ ; Tvlist[Tn] =  100    ; Tn++ ;
+  Ttypelist[Tn] = RY ; Tvlist[Tn] =  120    ; Tn++ ;
+  Ttypelist[Tn] = RX ; Tvlist[Tn] =  -70    ; Tn++ ;
+  Ttypelist[Tn] = TZ ; Tvlist[Tn] =  400    ; Tn++ ;
+  
+  D3d_make_movement_sequence_matrix (M[numobjects], invM[numobjects],
+				     Tn, Ttypelist, Tvlist) ;
+  rgb[numobjects][0] = 1; rgb[numobjects][1] = 0; rgb[numobjects][2] = 1;
+  
   numobjects++;
 
 }
@@ -160,17 +208,19 @@ int generateRay(int x, int y, double argb[3]) {
   double intersects[15][2];
   double P[3], N[3];
   h = tan(degrees_of_half_angle * M_PI / 180);
-  nx = x - 300 * (h / 300.0);
-  ny = y - 300 * (h / 300.0);
+  nx = (x - 300) * (h / 300.0);
+  ny = (y - 300) * (h / 300.0);
   rayScreen[0] = nx;
   rayScreen[1] = ny;
   rayScreen[2] = 1;
 
   //find all intersections
-
   for(i = 0; i < numobjects; i++) {
     D3d_mat_mult_pt(eye_obj_space[i], invM[i], eye);
     D3d_mat_mult_pt(ray_obj_space[i], invM[i], rayScreen);
+    //for(j = 0; j < 3; j++) {
+    // printf("Eye obj: %lf, Ray Obj: %lf\n", eye_obj_space[i][j], ray_obj_space[i][j]);
+    //}
     a = 0; b = 0; c = 0;
     for(j = 0; j < 3; j++) {
       rayVec[i][j] = ray_obj_space[i][j] - eye_obj_space[i][j];
@@ -197,6 +247,12 @@ int generateRay(int x, int y, double argb[3]) {
     }
   }
 
+  //if(objnum != -1) {
+  // printf("x: %d, y: %d\n", x, y);
+  // printf("nx: %lf, ny: %lf\n", nx, ny);
+  // printf("Objnum is %d.\n", objnum);
+  //  printf("T is %lf\n", closeT);
+  //}
   for(i = 0; i < 3; i++) {
     P[i] = eye_obj_space[objnum][i] + rayVec[objnum][i] * closeT;
   }
@@ -227,15 +283,18 @@ int main() {
   G_init_graphics(600,600);
   G_rgb(0,0,0);
   G_clear();
-  int ix, iy;
+  int ix, iy, i;
   double argb[3];
-  for(ix = 0; ix < 600; ix++) {
-    for(iy = 0; iy < 600; iy++) {
-      generateRay(ix, iy, argb);
-      G_rgb(argb[0], argb[1], argb[2]);
-      G_point(ix, iy);
+  for(i = 0; i <= 24; i++) {
+    degrees_of_half_angle = 80 - 2*i;
+    for(ix = 0; ix < 600; ix++) {
+      for(iy = 0; iy < 600; iy++) {
+	generateRay(ix, iy, argb);
+	G_rgb(argb[0], argb[1], argb[2]);
+	G_point(ix, iy);
+      }
     }
+    G_display_image();
+    G_wait_key();
   }
-  G_display_image();
-  G_wait_key();
 }
