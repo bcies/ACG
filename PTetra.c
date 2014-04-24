@@ -19,12 +19,6 @@ int sphere(double p[3], double u, double v) {
 }
 
 int hyperboloid(double p[3], double u, double v) {
-  //p[0] = 0.25*cosh(u)*cos(v);
-  //p[1] = 0.25*cosh(u)*sin(v);
-  //p[2] = 0.25*sinh(u);
-  //p[0] = .25*sqrt(1+pow(u,2))*cos(v);
-  //p[1] = .25*sqrt(1+pow(u,2))*sin(v);
-  //p[2] = .25*u;
 
   double r = .25;
   double H = 1;
