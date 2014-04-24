@@ -169,14 +169,13 @@ int init_scene() {
   for(k = 0; k < 3; k++) {
     objectType[numobjects] = 1;
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.45; Tn++;
-    Ttypelist[Tn] = SY; Tvlist[Tn] = brad*10; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*.45; Tn++;
-    Ttypelist[Tn] = RZ; Tvlist[Tn] = 90; Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.25; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad*.25; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*5; Tn++;
     Ttypelist[Tn] = RY; 
-    if(k == 0) { Tvlist[Tn] = 30; }
-    else if(k == 1) { Tvlist[Tn] = 90; }
-    else { Tvlist[Tn] = -30; }
+    if(k == 0) { Tvlist[Tn] = -60; }
+    else if(k == 1) { Tvlist[Tn] = 0; }
+    else { Tvlist[Tn] = 60; }
     Tn++;
     Ttypelist[Tn] = TX; Tvlist[Tn] = hxcen[k]; Tn++;
     Ttypelist[Tn] = TY; Tvlist[Tn] = hycen[k]; Tn++;
@@ -190,11 +189,11 @@ int init_scene() {
   for(k = 0; k < 3; k++) {
     objectType[numobjects] = 1;
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.45; Tn++;
-    Ttypelist[Tn] = SY; Tvlist[Tn] = brad*10; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*.45; Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.25; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad*.25; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*5; Tn++;
     Ttypelist[Tn] = RX;
-    Tvlist[Tn] = -atan2(ycen[3], 1) * 180/M_PI + 20;
+    Tvlist[Tn] = atan2(ycen[3], 1) * 180/M_PI;
     //printf("%lf\n", Tvlist[Tn]);
     Tn++;
     Ttypelist[Tn] = RY;
@@ -215,12 +214,17 @@ int init_scene() {
   for(k = 0; k < 4; k++) {
     objectType[numobjects] = 1;
     Tn = 0;
-    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.43; Tn++;
-    Ttypelist[Tn] = SY; Tvlist[Tn] = brad*6; Tn++;
-    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*.43; Tn++;
+    Ttypelist[Tn] = SX; Tvlist[Tn] = brad*.2; Tn++;
+    Ttypelist[Tn] = SY; Tvlist[Tn] = brad*.2; Tn++;
+    Ttypelist[Tn] = SZ; Tvlist[Tn] = brad*2.75; Tn++;
+    Ttypelist[Tn] = RX;
+    if(k == 3) {
+      Tvlist[Tn] = 90;
+    } else {
+      Tvlist[Tn] = 20;
+    }
+    Tn++;
     if(k != 3) {
-      Ttypelist[Tn] = RX; Tvlist[Tn] = -70; 
-      Tn++;
       Ttypelist[Tn] = RY;
       if(k == 0) { Tvlist[Tn] = 90; }
       else if (k == 1) { Tvlist[Tn] = -30; }
@@ -348,7 +352,7 @@ int generateRay(int x, int y, double argb[3]) {
   rayScreen[2] = 1;
 
   //find all intersections
-  for(i = 0; i < 6; i++) {
+  for(i = 0; i < numobjects; i++) {
     D3d_mat_mult_pt(eye_obj_space[i], dinvM[i], eye);
     D3d_mat_mult_pt(ray_obj_space[i], dinvM[i], rayScreen);
     a = 0; b = 0; c = 0;
@@ -390,7 +394,7 @@ int generateRay(int x, int y, double argb[3]) {
   //find closest intersect
   int objnum = -1;
   double closeT = 1000;
-  for(i = 0; i < 6; i++) {
+  for(i = 0; i < numobjects; i++) {
     if(intersects[i][0] >= 0 && intersects[i][0] < closeT) {
       objnum = i;
       closeT = intersects[i][0];
@@ -425,9 +429,9 @@ int generateRay(int x, int y, double argb[3]) {
     D3d_mat_mult_pt(N, transposedM, P);
   } else if(objectType[objnum] == 1) {
     for(i = 0; i < 2; i++) {
-      N[i] = 2*P[i];
+      N[i] = -2*P[i];
     }
-    N[2] = -2*P[i];
+    N[2] = 2*P[i];
     findUnitVector(N, N);
     if(dotProduct(N, P) < 0) {
       for(i = 0; i < 3; i++) {
