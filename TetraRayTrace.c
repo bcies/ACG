@@ -373,7 +373,7 @@ int generateRay(int x, int y, double argb[3]) {
 	c -= eye_obj_space[i][j] * eye_obj_space[i][j];
       }
       rayVec[i][2] = ray_obj_space[i][2] - eye_obj_space[i][2];
-      a += rayVec[i][j] * rayVec[i][j];
+      a += rayVec[i][2] * rayVec[i][2];
       b += eye_obj_space[i][2] * rayVec[i][2];
       c += eye_obj_space[i][2] * eye_obj_space[i][2];
       b *= 2;
@@ -405,18 +405,19 @@ int generateRay(int x, int y, double argb[3]) {
     }
   }
 
-  //if(objnum != -1) {
-  // printf("x: %d, y: %d\n", x, y);
-  // printf("nx: %lf, ny: %lf\n", nx, ny);
+  //if(objnum == -1) {
+  //printf("x: %d, y: %d\n", x, y);
+  //printf("nx: %lf, ny: %lf\n", nx, ny);
   // printf("Objnum is %d.\n", objnum);
-  //  printf("T is %lf\n", closeT);
+  // printf("T is %lf\n", closeT);
   //}
-  for(i = 0; i < 3; i++) {
-    P[i] = eye_obj_space[objnum][i] + rayVec[objnum][i] * closeT;
-  }
-
-  //find normal
-  if(objectType[objnum] == 0) {
+  argb[0] = 0; argb[1] = 0; argb[2] = 0;
+  if(objnum != -1) {
+    for(i = 0; i < 3; i++) {
+      P[i] = eye_obj_space[objnum][i] + rayVec[objnum][i] * closeT;
+    }
+    
+    //find normal
     double transposedM[4][4];
     for(i = 0; i < 3; i++) {
       for(j = 0; j < 3; j++) {
@@ -426,24 +427,14 @@ int generateRay(int x, int y, double argb[3]) {
       transposedM[i][3] = 0;
     }
     transposedM[3][3] = 1;
+    
     D3d_mat_mult_pt(N, transposedM, P);
-  } else if(objectType[objnum] == 1) {
-    for(i = 0; i < 2; i++) {
-      N[i] = -2*P[i];
-    }
-    N[2] = 2*P[i];
-    findUnitVector(N, N);
-    if(dotProduct(N, P) < 0) {
-      for(i = 0; i < 3; i++) {
-	N[i] = -N[i];
-      }
-    }
+    
+    //Need to move P back to eyespace
+    D3d_mat_mult_pt(P, dM[objnum], P);
+    
+    nu_light_model(rgb[objnum], eye, P, N, argb);
   }
-  
-  //Need to move P back to eyespace
-  D3d_mat_mult_pt(P, dM[objnum], P);
-
-  nu_light_model(rgb[objnum], eye, P, N, argb);
 
 }
 
@@ -457,11 +448,13 @@ int main() {
   eye[0] = 0; eye[1] = 0; eye[2] = 0;
 
   G_init_graphics(600,600);
-  G_rgb(0,0,0);
-  G_clear();
+
   int ix, iy, i;
   double argb[3];
   for(i = 0; i <= 40; i++) {
+    G_rgb(0,0,0);
+    G_clear();
+    printf("Screen number %d\n", i);
     makePaths(i);
     for(ix = 0; ix < 600; ix++) {
       for(iy = 0; iy < 600; iy++) {
