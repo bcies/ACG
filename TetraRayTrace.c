@@ -429,6 +429,16 @@ int generateRay(int x, int y, double argb[3]) {
     transposedM[3][3] = 1;
     
     D3d_mat_mult_pt(N, transposedM, P);
+
+    //double unitN[3], unitRay[3];
+    //findUnitVector(N, unitN);
+    //findUnitVector(rayVec[objnum], unitRay);
+
+    //if(dotProduct(unitN, unitRay) < 0) {
+    //  for(i = 0; i < 3; i++) {
+    //	unitN[i] = -unitN[i];
+    //  }
+    //}
     
     //Need to move P back to eyespace
     D3d_mat_mult_pt(P, dM[objnum], P);
